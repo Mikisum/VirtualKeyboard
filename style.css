@@ -1,0 +1,74 @@
+* {
+    font-family:"Baloo Thambi 2",  sans-serif;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: white ;
+}
+
+#keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    justify-content: center;
+    border:2px solid black;
+    padding: 5px;
+    width: 100%;
+    background-color: rgb(46, 46, 46);
+    box-shadow: 0 0 10px rgba(46, 46, 46, 0.8);
+    border-radius: 5px;   
+    color: white;
+}
+
+#textarea {
+    margin: 50px auto;
+    font-weight: 400;
+    width: 100%;
+    min-height: 150px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid rgb(32, 32, 32);
+
+}
+
+.k-key {
+    min-width: fit-content;
+    width: 5%;
+    min-height: fit-content;
+    height: 5%;
+    background-color:rgb(26, 26, 26) ;
+    border: 5px solid rgb(31, 30, 30);
+    border-radius: 4px;
+    color: white;
+    border-top: 5px;
+    margin: 5px;
+    padding: 5px;
+    float: left;
+}
+
+.k-key:hover {
+    box-shadow: yellow;
+    cursor: pointer;
+    animation-name: bounce;
+    animation-duration: 0.5s;
+}
+
+.active {
+    background-color: rgb(31, 31, 31);
+    box-shadow:  inset 0 0 10px rgb(161, 124, 64),0 0 10px rgb(161, 124, 64);
+    transition: all 0.2s;
+}
+
+.clearfix {
+    display: block;
+    width: 100%;
+    clear: both;
+}
+
+.Enter {
+    width: 7%;
+}
