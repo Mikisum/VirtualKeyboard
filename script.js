@@ -1,6 +1,7 @@
 
 const TEXTAREA = document.createElement('textarea');
 TEXTAREA.id = 'textarea';
+TEXTAREA.autofocus = true;
 const KEYBOARD = document.createElement('div');
 KEYBOARD.id = 'keyboard';
 const BUTTON = document.createElement('button');
@@ -11,11 +12,14 @@ class Button {
     constructor(htmlParent, keyCode, enLower, enUpper, ruLower, ruUpper) {
         this.enLower = enLower;
         this.enUpper = enUpper;
+        this.ruLower = ruLower;
+        this.ruUpper = ruUpper;
 
         this.htmlKey = document.createElement('div');
         this.htmlKey.className = 'k-key';
         this.htmlKey.setAttribute('data', keyCode);
-        this.htmlKey.innerHTML = this.getChar('en', 'lower');
+        this.htmlKey.classList.add(keyCode);
+        this.htmlKey.innerHTML = this.getLangChar('en', 'lower');
         htmlParent.append(this.htmlKey);
         
         if (keyCode === 'Backspace'|| keyCode === 'Delete' || keyCode === 'Enter' || keyCode === 'ShiftRight' ) {
@@ -23,16 +27,16 @@ class Button {
             nextLine.className = 'clearfix';
             htmlParent.append(nextLine);
         }
+
     }
 
-    getChar(lang, Register) {
+    getLangChar(lang, register) {
         if (lang == 'en') {
-            return Register === 'lower' ? this.enLower : this.enUpper;
+            return register === 'lower' ? this.enLower : this.enUpper;
         }
         else if (lang == 'ru') {
-            return Register === 'upper' ? this.ruUpper :this.ruLower;
-        }
-           
+            return register === 'lower' ? this.ruLower : this.ruUpper;
+        }     
     }
 
     getHtmlElement() {
@@ -40,40 +44,96 @@ class Button {
     }
  }
 
+let language = 'en';
+function changeLanguage() {
+    if (language === 'en') language = 'ru';
+    else language = 'en';
+    Object.values(keyMap).forEach(button => {   
+        button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+   });
+}
+
+function space() {
+    TEXTAREA.value += ' ';
+}
+
+function enter() {
+    TEXTAREA.value += '\r\n';
+}
+
+let register = 'lower';
+function capsLock() {
+    if (register === 'lower') register = 'upper';
+    else register = 'lower';
+    Object.values(keyMap).forEach(button => { 
+       button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    }); 
+}
+
+function shift(status) {
+    if (status == register) return;
+    register = status;
+    Object.values(keyMap).forEach(button => {   
+        button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    });
+}
+
 document.addEventListener('keydown', (event) => {
     TEXTAREA.focus(); 
     keyMap[event.code].getHtmlElement().classList.add('active');
-    keyMap[event.code].getChar('en', 'lower');
-    if (keyMap[event.code].getChar('en', 'lower') === 'Tab') {
+    if (event.shiftKey === true && event.altKey === true) changeLanguage();
+    if (event.shiftKey === true) shift('upper');
+    if (event.code === 'CapsLock') capsLock();
+    if (keyMap[event.code].getLangChar('en', 'lower') === 'Tab') {
         event.preventDefault();
         TEXTAREA.value += '    ';
     };
+    if (event.code === 'Space') space();
 });
 
 document.addEventListener('keyup', (event) => {
     keyMap[event.code].getHtmlElement().classList.remove('active');
+    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') shift('lower');
 });
 
 function selectionDelete() {
-   
+    TEXTAREA.value = TEXTAREA.value.substring(0, -1);
 }
 
+let pressShift = false;
 KEYBOARD.addEventListener('mousedown', (event) => {
     if (event.target.getAttribute('data') == null) return;
-    
     keyMap[event.target.getAttribute('data')].getHtmlElement().classList.add('active');
-    
-    if (event.target.getAttribute('data') === 'Delete') ;
-    if (event.target.getAttribute('data') === 'Space') TEXTAREA.value += ' ';
-    else TEXTAREA.value += event.target.outerText; 
-   
+    if (event.target.getAttribute('data') === 'CapsLock') capsLock();  
+    else if (event.target.getAttribute('data') === 'Delete') selectionDelete();
+    else if (event.target.getAttribute('data') === 'Space') space();
+    else if (event.target.getAttribute('data') === 'Backspace') TEXTAREA.value = TEXTAREA.value.slice(0, -1);
+    else if (event.target.getAttribute('data') === 'Enter') enter();
+    else if (event.target.getAttribute('data') === 'ShiftLeft' || event.target.getAttribute('data') === 'ShiftRight') {
+        shift('upper');
+        pressShift = true;
+    }
+    else {
+        TEXTAREA.value += event.target.outerText;
+        if (pressShift === true){
+            pressShift = false;
+            shift('lower');
+        }
+    }
 });
 
 KEYBOARD.addEventListener('mouseup', (event) => {
     if (keyMap[event.target.getAttribute('data')] == null) return;
     event.preventDefault();
     keyMap[event.target.getAttribute('data')].getHtmlElement().classList.remove('active');
+    TEXTAREA.focus();
 });
+
+// function addkey(keyCode, enLower, enUpper, ruLower, ruUpper) {
+//     ketMap[keyCode] = new Button(KEYBOARD, keyCode, enLower, enUpper, ruLower, ruUpper)
+// }
+
+// addkey("Backquote", '`', '`', 'ё', 'Ё') 
 
 const keyMap = {
     "Backquote" : new Button(KEYBOARD, "Backquote", '`', '`', 'ё', 'Ё'),
@@ -99,9 +159,9 @@ const keyMap = {
     "KeyT" : new Button(KEYBOARD, "KeyT", 't', 'T', 'е', 'Е'),
     "KeyY" : new Button(KEYBOARD, "KeyY", 'y', 'Y', 'н', 'Н'),
     "KeyU" : new Button(KEYBOARD, "KeyU", 'u', 'U', 'г', 'Г'),
-    "KeyI" : new Button(KEYBOARD, "KeyU", 'i', 'I', 'ш', 'Ш'),
-    "KeyO" : new Button(KEYBOARD, "KeyU", 'o', 'O', 'щ', 'Щ'),
-    "KeyP" : new Button(KEYBOARD, "KeyU", 'p', 'P', 'з', 'З'),
+    "KeyI" : new Button(KEYBOARD, "KeyI", 'i', 'I', 'ш', 'Ш'),
+    "KeyO" : new Button(KEYBOARD, "KeyO", 'o', 'O', 'щ', 'Щ'),
+    "KeyP" : new Button(KEYBOARD, "KeyP", 'p', 'P', 'з', 'З'),
     "BracketLeft" : new Button(KEYBOARD, "BracketLeft", '[', '{', 'х', 'Х'),
     "BracketRight" : new Button(KEYBOARD, "BracketRight", ']', '}', 'ъ', 'Ъ'),
     "Delete" : new Button(KEYBOARD, "Delete", 'Delete', 'Delete', 'Delete', 'Delete'),
