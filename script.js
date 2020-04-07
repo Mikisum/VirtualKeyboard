@@ -5,11 +5,10 @@ TEXTAREA.autofocus = true;
 const KEYBOARD = document.createElement('div');
 KEYBOARD.id = 'keyboard';
 const BUTTON = document.createElement('button');
+const HINT = document.createElement('div');
+HINT.innerText = 'Shift + Alt - change language\n Created under Windows';
 document.body.append(TEXTAREA);
 document.body.append(KEYBOARD);
-const HINT = document.createElement('div');
-HINT.innerText = 'Shift + Alt - change language';
-HINT.id = 'hint';
 document.body.append(HINT);
 
 class Button {
@@ -34,11 +33,6 @@ class Button {
 
     }
 
-    // getLanguage (key) {
-    //     if (key === this.enLower || key === this.enUpper) return 'en';
-    //     else return 'ru';
-    // }
-
     getLangChar(lang, register) {
         if (lang == 'en') {
             return register === 'lower' ? this.enLower : this.enUpper;
@@ -53,12 +47,58 @@ class Button {
     }
  }
 
-let language = localStorage.getItem('language') != null ? localStorage.getItem('language') : 'en';
+document.addEventListener('keydown', (event) => {
+    if (keyMap[event.code] === undefined) return;
+    event.preventDefault();
+    if (event.shiftKey === true && event.altKey === true) changeLanguage();
+    buttonHandlerDown(event.code, event.key);
+});
 
+document.addEventListener('keyup', (event) => {
+    if (keyMap[event.code] === undefined) return;
+    event.preventDefault();
+    buttonHandlerUp(event.code);
+});
+
+KEYBOARD.addEventListener('mousedown', (event) => {
+    buttonHandlerDown(event.target.getAttribute('data'), event.target.innerText);
+});
+
+KEYBOARD.addEventListener('mouseup', (event) => {
+    buttonHandlerUp(event.target.getAttribute('data'));
+});
+
+function buttonHandlerDown(keyCode, key) {
+    TEXTAREA.focus(); 
+    if (keyCode === null || keyCode === undefined) return;
+    keyMap[keyCode].getHtmlElement().classList.add('active');
+    if (key === 'ArrowUp' || key === 'ArrowRight' || key === 'ArrowDown' || key === 'ArrowLeft')
+        key = keyMap[keyCode].getLangChar(language, register);
+    if (keyCode === 'AltRight' || keyCode === 'AltLeft') return;
+    else if (keyCode === 'ControlRight' || keyCode === 'ControlLeft') return; 
+    else if (keyCode === 'CapsLock') capsLock(); 
+    else if (keyCode === 'Delete') selectionDelete();
+    else if (keyCode === 'Space') space();
+    else if (keyCode === 'Backspace') backspace();
+    else if (keyCode === 'Enter') enter();
+    else if (keyCode === 'Tab') tab();
+    else if (keyCode === 'ShiftLeft' || keyCode === 'ShiftRight') shiftDown();
+    else TEXTAREA.value += key;
+}
+
+function buttonHandlerUp(keyCode) {
+    TEXTAREA.focus();
+    if (keyCode === null || keyCode === undefined) return;
+    if (keyCode === 'CapsLock') return;
+    keyMap[keyCode].getHtmlElement().classList.remove('active');
+    if (keyCode === 'ShiftLeft' || keyCode === 'ShiftRight') shiftUp();
+}
+
+let language = sessionStorage.getItem('language') != null ? sessionStorage.getItem('language') : 'en';
 function changeLanguage() {
     if (language === 'en') language = 'ru';
     else language = 'en';
-    localStorage.setItem('language', language);
+    sessionStorage.setItem('language', language);
     Object.values(keyMap).forEach(button => {   
         button.getHtmlElement().innerHTML = button.getLangChar(language, register);
    });
@@ -75,79 +115,51 @@ function enter() {
 let register = 'lower';
 function capsLock() {
     if (register === 'lower') register = 'upper';
-    else register = 'lower';
-    Object.values(keyMap).forEach(button => { 
-       button.getHtmlElement().innerHTML = button.getLangChar(language, register);
-    }); 
-}
-
-function shift(status) {
-    if (status == register) return;
-    register = status;
-    Object.values(keyMap).forEach(button => {   
+    else {
+        register = 'lower';
+        keyMap['CapsLock'].getHtmlElement().classList.remove('active');
+    }
+    Object.values(keyMap).forEach(button => {
         button.getHtmlElement().innerHTML = button.getLangChar(language, register);
     });
 }
 
-document.addEventListener('keydown', (event) => {
-    TEXTAREA.focus(); 
-    if (keyMap[event.code] === undefined) return;
-    keyMap[event.code].getHtmlElement().classList.add('active');
-    if (event.shiftKey === true && event.altKey === true) changeLanguage();
-    if (event.shiftKey === true) shift('upper');
-    if (event.code === 'CapsLock') capsLock();
-    if (keyMap[event.code].getLangChar('en', 'lower') === 'Tab') {
-        event.preventDefault();
-        TEXTAREA.value += '    ';
-    };
-    if (event.code === 'Space') space();
-    // if (keyMap[event.code].getLanguage(event.key) !== language) changeLanguage();
-
-});
-
-document.addEventListener('keyup', (event) => {
-    keyMap[event.code].getHtmlElement().classList.remove('active');
-    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') shift('lower');
-});
-
-function selectionDelete() {
-    TEXTAREA.value = TEXTAREA.value.substring(0, -1);
+function shiftDown() {
+    let shiftRegister;
+    if (register === 'lower') shiftRegister = 'upper';
+    else shiftRegister = 'lower';
+    Object.values(keyMap).forEach(button => {
+        button.getHtmlElement().innerHTML = button.getLangChar(language, shiftRegister);
+    });
 }
 
-let pressShift = false;
-KEYBOARD.addEventListener('mousedown', (event) => {
-    if (event.target.getAttribute('data') == null) return;
-    keyMap[event.target.getAttribute('data')].getHtmlElement().classList.add('active');
-    if (event.target.getAttribute('data') === 'CapsLock') capsLock();  
-    else if (event.target.getAttribute('data') === 'Delete') selectionDelete();
-    else if (event.target.getAttribute('data') === 'Space') space();
-    else if (event.target.getAttribute('data') === 'Backspace') TEXTAREA.value = TEXTAREA.value.slice(0, -1);
-    else if (event.target.getAttribute('data') === 'Enter') enter();
-    else if (event.target.getAttribute('data') === 'ShiftLeft' || event.target.getAttribute('data') === 'ShiftRight') {
-        shift('upper');
-        pressShift = true;
-    }
-    else {
-        TEXTAREA.value += event.target.outerText;
-        if (pressShift === true){
-            pressShift = false;
-            shift('lower');
-        }
-    }
-});
+function shiftUp() {
+    Object.values(keyMap).forEach(button => {
+        button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    });
+}
 
-KEYBOARD.addEventListener('mouseup', (event) => {
-    if (keyMap[event.target.getAttribute('data')] == null) return;
-    event.preventDefault();
-    keyMap[event.target.getAttribute('data')].getHtmlElement().classList.remove('active');
-    TEXTAREA.focus();
-});
+function tab() {
+    TEXTAREA.value += '\t';
+}
 
-// function addkey(keyCode, enLower, enUpper, ruLower, ruUpper) {
-//     ketMap[keyCode] = new Button(KEYBOARD, keyCode, enLower, enUpper, ruLower, ruUpper)
-// }
+function selectionDelete() {
+    let start = TEXTAREA.selectionStart;
+    let end = TEXTAREA.selectionEnd;
+    if (start === end) end++;
+    TEXTAREA.value = TEXTAREA.value.substring(0, start) + TEXTAREA.value.substring(end);
+    TEXTAREA.selectionStart = start;
+    TEXTAREA.selectionEnd = start;
+}
 
-// addkey("Backquote", '`', '`', 'ё', 'Ё') 
+function backspace() {
+    let start = TEXTAREA.selectionStart;
+    let end = TEXTAREA.selectionEnd;
+    if (start === end) start--;
+    TEXTAREA.value = TEXTAREA.value.substring(0, start) + TEXTAREA.value.substring(end);
+    TEXTAREA.selectionStart = start;
+    TEXTAREA.selectionEnd = start;
+}
 
 const keyMap = {
     "Backquote" : new Button(KEYBOARD, "Backquote", '`', '`', 'ё', 'Ё'),
@@ -205,7 +217,7 @@ const keyMap = {
     "Comma" : new Button(KEYBOARD, "Comma", ',', '<', 'б','Б'),
     "Period" : new Button(KEYBOARD, "Period", '.', ">", 'ю', 'Ю'),
     "Slash" : new Button(KEYBOARD, "Slash", '/', '?', '.', ','),
-    "ArrowUp" : new Button(KEYBOARD, "ArrowUp", '&uarr;', '&uarr;', '&uarr;', '&uarr;'),
+    "ArrowUp" : new Button(KEYBOARD, "ArrowUp", '↑', '↑', '↑', '↑'),
     "ShiftRight" : new Button(KEYBOARD, "ShiftRight", 'Shift', 'Shift', 'Shift', 'Shift'),
     //row 4
     "ControlLeft" : new Button(KEYBOARD, "ControlLeft", 'Ctrl', 'Ctrl', 'Ctrl', 'Ctrl'),
@@ -213,9 +225,9 @@ const keyMap = {
     "Space" : new Button(KEYBOARD, "Space", 'Space', 'Space', 'Space', 'Space'),
     "AltRight" : new Button(KEYBOARD, "AltRight", 'Alt', 'Alt', 'Alt', 'Alt'),
     
-    "ArrowLeft" : new Button(KEYBOARD, "ArrowLeft", '&larr;', '&larr;', '&larr;', '&larr;'),
-    "ArrowDown" : new Button(KEYBOARD, "ArrowDown", '&darr;', '&darr;', '&darr;', '&darr;'),
-    "ArrowRight" : new Button(KEYBOARD, "ArrowRight", '&rarr;', '&rarr;', '&rarr;','&rarr;'),
+    "ArrowLeft" : new Button(KEYBOARD, "ArrowLeft", '←', '←', '←', '←'),
+    "ArrowDown" : new Button(KEYBOARD, "ArrowDown", '↓', '↓', '↓', '↓'),
+    "ArrowRight" : new Button(KEYBOARD, "ArrowRight", '→', '→', '→','→'),
     "ControlRight" : new Button(KEYBOARD, "ControlRight", 'Ctrl', 'Ctrl', 'Ctrl', 'Ctrl')
 };
 
