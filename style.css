@@ -65,6 +65,10 @@ body {
     transition: all 0.2s;
 }
 
+.hint {
+    
+}
+
 .clearfix {
     display: block;
     width: 100%;
@@ -72,7 +76,30 @@ body {
 }
 
 .Enter {
+    width: 11%;
+}
+
+.Backspace, .CapsLock {
+    width: 10%;
+}
+
+.Tab {
+    width: 8%;
+}
+
+.Delete {
     width: 7%;
+}
+
+.ShiftLeft {
+    width: 10%;
+}
+.ShiftRight{
+    width: 11%;
+}
+
+.Space{
+    width: 46%;
 }
 
 .capsLock .active {

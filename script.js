@@ -7,6 +7,10 @@ KEYBOARD.id = 'keyboard';
 const BUTTON = document.createElement('button');
 document.body.append(TEXTAREA);
 document.body.append(KEYBOARD);
+const HINT = document.createElement('div');
+HINT.innerText = 'Shift + Alt - change language';
+HINT.id = 'hint';
+document.body.append(HINT);
 
 class Button {
     constructor(htmlParent, keyCode, enLower, enUpper, ruLower, ruUpper) {
@@ -19,7 +23,7 @@ class Button {
         this.htmlKey.className = 'k-key';
         this.htmlKey.setAttribute('data', keyCode);
         this.htmlKey.classList.add(keyCode);
-        this.htmlKey.innerHTML = this.getLangChar('en', 'lower');
+        this.htmlKey.innerHTML = this.getLangChar(language, register);
         htmlParent.append(this.htmlKey);
         
         if (keyCode === 'Backspace'|| keyCode === 'Delete' || keyCode === 'Enter' || keyCode === 'ShiftRight' ) {
@@ -29,6 +33,11 @@ class Button {
         }
 
     }
+
+    // getLanguage (key) {
+    //     if (key === this.enLower || key === this.enUpper) return 'en';
+    //     else return 'ru';
+    // }
 
     getLangChar(lang, register) {
         if (lang == 'en') {
@@ -44,10 +53,12 @@ class Button {
     }
  }
 
-let language = 'en';
+let language = localStorage.getItem('language') != null ? localStorage.getItem('language') : 'en';
+
 function changeLanguage() {
     if (language === 'en') language = 'ru';
     else language = 'en';
+    localStorage.setItem('language', language);
     Object.values(keyMap).forEach(button => {   
         button.getHtmlElement().innerHTML = button.getLangChar(language, register);
    });
@@ -80,6 +91,7 @@ function shift(status) {
 
 document.addEventListener('keydown', (event) => {
     TEXTAREA.focus(); 
+    if (keyMap[event.code] === undefined) return;
     keyMap[event.code].getHtmlElement().classList.add('active');
     if (event.shiftKey === true && event.altKey === true) changeLanguage();
     if (event.shiftKey === true) shift('upper');
@@ -89,6 +101,8 @@ document.addEventListener('keydown', (event) => {
         TEXTAREA.value += '    ';
     };
     if (event.code === 'Space') space();
+    // if (keyMap[event.code].getLanguage(event.key) !== language) changeLanguage();
+
 });
 
 document.addEventListener('keyup', (event) => {
@@ -195,13 +209,13 @@ const keyMap = {
     "ShiftRight" : new Button(KEYBOARD, "ShiftRight", 'Shift', 'Shift', 'Shift', 'Shift'),
     //row 4
     "ControlLeft" : new Button(KEYBOARD, "ControlLeft", 'Ctrl', 'Ctrl', 'Ctrl', 'Ctrl'),
-    "MetaLeft" : new Button(KEYBOARD, "MetaLeft", 'Fn', 'Fn', 'Fn', 'Fn'),
     "AltLeft" : new Button(KEYBOARD, "AltLeft", 'Alt', 'Alt', 'Alt', 'Alt'),
     "Space" : new Button(KEYBOARD, "Space", 'Space', 'Space', 'Space', 'Space'),
     "AltRight" : new Button(KEYBOARD, "AltRight", 'Alt', 'Alt', 'Alt', 'Alt'),
-    "ControlRight" : new Button(KEYBOARD, "ControlRight", 'Ctrl', 'Ctrl', 'Ctrl', 'Ctrl'),
+    
     "ArrowLeft" : new Button(KEYBOARD, "ArrowLeft", '&larr;', '&larr;', '&larr;', '&larr;'),
     "ArrowDown" : new Button(KEYBOARD, "ArrowDown", '&darr;', '&darr;', '&darr;', '&darr;'),
-    "ArrowRight" : new Button(KEYBOARD, "ArrowRight", '&rarr;', '&rarr;', '&rarr;','&rarr;')
+    "ArrowRight" : new Button(KEYBOARD, "ArrowRight", '&rarr;', '&rarr;', '&rarr;','&rarr;'),
+    "ControlRight" : new Button(KEYBOARD, "ControlRight", 'Ctrl', 'Ctrl', 'Ctrl', 'Ctrl')
 };
 
