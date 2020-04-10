@@ -59,10 +59,8 @@ body {
 }
 
 .active {
-    
-    /* background-color: rgb(41, 40, 40); */
     box-shadow:  inset 0px 0px 10px rgb(39, 39, 39);
-    transition: all 0.2s;
+    transition: all 800ms linear;
 }
 
 .clearfix {
