@@ -57,10 +57,12 @@ const KEY_CODES = {
   Tab: 'Tab',
   KeyQ: 'KeyQ',
   KeyW: 'KeyW',
+  KeyE: 'KeyE',
   KeyR: 'KeyR',
   KeyT: 'KeyT',
   KeyY: 'KeyY',
   KeyU: 'KeyU',
+  KeyI: 'KeyI',
   KeyO: 'KeyO',
   KeyP: 'KeyP',
   BracketLeft: 'BracketLeft',
@@ -218,7 +220,17 @@ function changeLanguage() {
   });
 }
 
+let altPressed = false;
+function altDown() {
+  altPressed = true;
+}
+function altUp() {
+  altPressed = false;
+}
+
+let shiftPressed = false;
 function shiftDown() {
+  shiftPressed = true;
   let shiftRegister;
   if (letterCase === letterCases.lower) shiftRegister = letterCases.upper;
   else shiftRegister = letterCases.lower;
@@ -228,6 +240,7 @@ function shiftDown() {
 }
 
 function shiftUp() {
+  shiftPressed = false;
   Object.values(keyMap).forEach((button) => {
     button.getHtmlElement().innerHTML = button.getLangChar(language, letterCase);
   });
@@ -278,7 +291,7 @@ function buttonHandlerDown(keyCode) {
   textArea.focus();
   if (keyCode === null || keyCode === undefined) return;
   keyMap[keyCode].getHtmlElement().classList.add('active');
-  if (keyCode === KEY_CODES.AltRight || keyCode === KEY_CODES.AltLeft);
+  if (keyCode === KEY_CODES.AltRight || keyCode === KEY_CODES.AltLeft) altDown();
   else if (keyCode === KEY_CODES.ControlRight || keyCode === KEY_CODES.ControlLeft);
   else if (keyCode === KEY_CODES.CapsLock) capsLock();
   else if (keyCode === KEY_CODES.Delete) selectionDelete();
@@ -288,6 +301,8 @@ function buttonHandlerDown(keyCode) {
   else if (keyCode === KEY_CODES.Tab) tab();
   else if (keyCode === KEY_CODES.ShiftLeft || keyCode === KEY_CODES.ShiftRight) shiftDown();
   else textArea.value += keyMap[keyCode].getHtmlElement().innerHTML;
+
+  if (shiftPressed === true && altPressed === true) changeLanguage();
 }
 
 function buttonHandlerUp(keyCode) {
@@ -295,13 +310,13 @@ function buttonHandlerUp(keyCode) {
   if (keyCode === null || keyCode === undefined) return;
   if (keyCode === KEY_CODES.CapsLock) return;
   keyMap[keyCode].getHtmlElement().classList.remove('active');
-  if (keyCode === KEY_CODES.ShiftLeft || keyCode === KEY_CODES.ShiftRight) shiftUp();
+  if (keyCode === KEY_CODES.AltRight || keyCode === KEY_CODES.AltLeft) altUp();
+  else if (keyCode === KEY_CODES.ShiftLeft || keyCode === KEY_CODES.ShiftRight) shiftUp();
 }
 
 document.addEventListener('keydown', (event) => {
   if (keyMap[event.code] === undefined) return;
   event.preventDefault();
-  if (event.shiftKey === true && event.altKey === true) changeLanguage();
   buttonHandlerDown(event.code);
 });
 
