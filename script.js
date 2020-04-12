@@ -136,8 +136,12 @@ const keyMap = {
 };
 
 function changeLanguage() {
-  if (language === 'en') language = 'ru';
-  else language = 'en';
+  if (language === 'en') {
+    language = 'ru';
+  } else {
+    language = 'en';
+  }
+
   sessionStorage.setItem('language', language);
   Object.values(keyMap).forEach((button) => {
     button.getHtmlElement().innerHTML = button.getLangChar(language, register);
