@@ -13,7 +13,7 @@ let language = sessionStorage.getItem('language') != null ? sessionStorage.getIt
 let register = 'lower';
 
 class Button {
-  constructor(htmlParent, keyCode, enLower, enUpper, ruLower, ruUpper) {
+  constructor({ htmlParent, keyCode, enLower, enUpper, ruLower, ruUpper }) {
     this.enLower = enLower;
     this.enUpper = enUpper;
     this.ruLower = ruLower;
