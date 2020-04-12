@@ -269,14 +269,10 @@ function capsLock() {
   });
 }
 
-function buttonHandlerDown(keyCode, key) {
+function buttonHandlerDown(keyCode) {
   textArea.focus();
   if (keyCode === null || keyCode === undefined) return;
   keyMap[keyCode].getHtmlElement().classList.add('active');
-
-  if (key === 'ArrowUp' || key === 'ArrowRight' || key === 'ArrowDown' || key === 'ArrowLeft') {
-    key = keyMap[keyCode].getLangChar(language, register);
-  }
   if (keyCode === KEY_CODES.AltRight || keyCode === KEY_CODES.AltLeft);
   else if (keyCode === KEY_CODES.ControlRight || keyCode === KEY_CODES.ControlLeft);
   else if (keyCode === KEY_CODES.CapsLock) capsLock();
@@ -286,7 +282,7 @@ function buttonHandlerDown(keyCode, key) {
   else if (keyCode === KEY_CODES.Enter) enter();
   else if (keyCode === KEY_CODES.Tab) tab();
   else if (keyCode === KEY_CODES.ShiftLeft || keyCode === KEY_CODES.ShiftRight) shiftDown();
-  else textArea.value += key;
+  else textArea.value += keyMap[keyCode].getHtmlElement().innerHTML;
 }
 
 function buttonHandlerUp(keyCode) {
@@ -301,7 +297,7 @@ document.addEventListener('keydown', (event) => {
   if (keyMap[event.code] === undefined) return;
   event.preventDefault();
   if (event.shiftKey === true && event.altKey === true) changeLanguage();
-  buttonHandlerDown(event.code, event.key);
+  buttonHandlerDown(event.code);
 });
 
 document.addEventListener('keyup', (event) => {
@@ -311,7 +307,7 @@ document.addEventListener('keyup', (event) => {
 });
 
 keyboard.addEventListener('mousedown', (event) => {
-  buttonHandlerDown(event.target.getAttribute('data'), event.target.innerText);
+  buttonHandlerDown(event.target.getAttribute('data'));
 });
 
 keyboard.addEventListener('mouseup', (event) => {
