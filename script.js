@@ -120,7 +120,7 @@ class Button {
   }
 
   getLangChar(lang, reg) {
-    if (lang === 'en') {
+    if (lang === LANGUAGES.en) {
       return reg === 'lower' ? this.enLower : this.enUpper;
     }
     return reg === 'lower' ? this.ruLower : this.ruUpper;
@@ -201,10 +201,10 @@ const keyMap = {
 };
 
 function changeLanguage() {
-  if (language === 'en') {
-    language = 'ru';
+  if (language === LANGUAGES.en) {
+    language = LANGUAGES.ru;
   } else {
-    language = 'en';
+    language = LANGUAGES.en;
   }
 
   sessionStorage.setItem('language', language);
