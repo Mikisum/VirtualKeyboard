@@ -31,8 +31,13 @@ const LANGUAGES = {
   ru: 'ru',
 };
 
+const letterCases = {
+  lower: 'lower',
+  upper: 'upper',
+};
+
 let language = sessionStorage.getItem('language') != null ? sessionStorage.getItem('language') : LANGUAGES.en;
-let register = 'lower';
+let letterCase = letterCases.lower;
 
 const KEY_CODES = {
   Backquote: 'Backquote',
@@ -108,7 +113,7 @@ class Button {
     this.htmlKey.className = 'k-key';
     this.htmlKey.setAttribute('data', keyCode);
     this.htmlKey.classList.add(keyCode);
-    this.htmlKey.innerHTML = this.getLangChar(language, register);
+    this.htmlKey.innerHTML = this.getLangChar(language, letterCase);
     htmlParent.append(this.htmlKey);
 
     if (keyCode === KEY_CODES.Backspace || keyCode === KEY_CODES.Delete
@@ -121,9 +126,9 @@ class Button {
 
   getLangChar(lang, reg) {
     if (lang === LANGUAGES.en) {
-      return reg === 'lower' ? this.enLower : this.enUpper;
+      return reg === letterCases.lower ? this.enLower : this.enUpper;
     }
-    return reg === 'lower' ? this.ruLower : this.ruUpper;
+    return reg === letterCases.lower ? this.ruLower : this.ruUpper;
   }
 
   getHtmlElement() {
@@ -209,14 +214,14 @@ function changeLanguage() {
 
   sessionStorage.setItem('language', language);
   Object.values(keyMap).forEach((button) => {
-    button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    button.getHtmlElement().innerHTML = button.getLangChar(language, letterCase);
   });
 }
 
 function shiftDown() {
   let shiftRegister;
-  if (register === 'lower') shiftRegister = 'upper';
-  else shiftRegister = 'lower';
+  if (letterCase === letterCases.lower) shiftRegister = letterCases.upper;
+  else shiftRegister = letterCases.lower;
   Object.values(keyMap).forEach((button) => {
     button.getHtmlElement().innerHTML = button.getLangChar(language, shiftRegister);
   });
@@ -224,7 +229,7 @@ function shiftDown() {
 
 function shiftUp() {
   Object.values(keyMap).forEach((button) => {
-    button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    button.getHtmlElement().innerHTML = button.getLangChar(language, letterCase);
   });
 }
 
@@ -259,13 +264,13 @@ function enter() {
 }
 
 function capsLock() {
-  if (register === 'lower') register = 'upper';
+  if (letterCase === letterCases.lower) letterCase = letterCases.upper;
   else {
-    register = 'lower';
+    letterCase = letterCases.lower;
     keyMap.CapsLock.getHtmlElement().classList.remove('active');
   }
   Object.values(keyMap).forEach((button) => {
-    button.getHtmlElement().innerHTML = button.getLangChar(language, register);
+    button.getHtmlElement().innerHTML = button.getLangChar(language, letterCase);
   });
 }
 
