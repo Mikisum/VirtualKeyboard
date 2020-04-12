@@ -24,7 +24,13 @@ const HINT = createHint();
 document.body.append(textArea);
 document.body.append(keyboard);
 document.body.append(HINT);
-let language = sessionStorage.getItem('language') != null ? sessionStorage.getItem('language') : 'en';
+
+const LANGUAGES = {
+  en: 'en',
+  ru: 'ru',
+};
+
+let language = sessionStorage.getItem('language') != null ? sessionStorage.getItem('language') : LANGUAGES.en;
 let register = 'lower';
 
 class Button {
